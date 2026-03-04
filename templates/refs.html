@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+
+{% block title %}{{ chrome.site_title }} | {{ nav.repo_name }} refs{% endblock %}
+
+{% block content %}
+{% include "partials/nav.html" %}
+
+<div class="refs-list">
+    {% for ref in refs %}
+    <div class="ref-item">
+        <div class="ref-main">
+            <a href="{{ ref.href }}">{{ ref.name }}</a>
+            <span class="ref-type-label {% if ref.ref_type == "branch" %}ref-kind-branch{% else if ref.ref_type == "tag" %}ref-kind-tag{% endif %}">{{ ref.ref_type }}</span>
+            <span class="ref-time time" title="{{ ref.time.full }}">{{ ref.time.relative }}</span>
+        </div>
+        <div class="ref-meta">
+            <span class="ref-author">{{ ref.author }}</span>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+{% include "partials/pager.html" %}
+{% endblock %}

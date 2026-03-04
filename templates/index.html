@@ -1,0 +1,22 @@
+{% extends "base.html" %}
+
+{% block title %}{{ chrome.site_title }} | {{ nav.repo_name }}{% endblock %}
+
+{% block content %}
+{% include "partials/nav.html" %}
+
+{% if readme.is_some() %}
+{% let readme = readme.as_ref().unwrap() %}
+<div class="readme">
+    <div class="readme-box">
+        {% if readme.is_markdown %}
+        <div class="readme-markdown">{{ readme.content|safe }}</div>
+        {% else %}
+        <pre class="readme-plain">{{ readme.content }}</pre>
+        {% endif %}
+    </div>
+</div>
+{% else %}
+<p>No README found.</p>
+{% endif %}
+{% endblock %}

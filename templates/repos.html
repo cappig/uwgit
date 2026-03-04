@@ -1,0 +1,20 @@
+{% extends "base.html" %}
+
+{% block title %}{{ chrome.site_title }} | {{ owner }}'s repositories{% endblock %}
+
+{% block content %}
+<h2 class="repos-title">{{ owner }}'s repositories</h2>
+
+<ul class="repo-list">
+    {% for repo in repos %}
+    <li>
+        <div class="repo-name">
+            <a href="/{{ repo.name }}">{{ repo.name }}</a>
+        </div>
+        {% if repo.description.is_some() %}
+        <div class="repo-desc">{{ repo.description.as_ref().unwrap() }}</div>
+        {% endif %}
+    </li>
+    {% endfor %}
+</ul>
+{% endblock %}

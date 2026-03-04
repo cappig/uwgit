@@ -1,0 +1,6 @@
+<nav>
+    <a href="/{{ nav.repo_name }}{% if !nav.display_ref.is_empty() %}?ref={{ nav.display_ref }}{% endif %}" class="{% if nav.current_page == "index" %}active{% endif %}">index</a>
+    <a href="/{{ nav.repo_name }}/tree{% if !nav.display_ref.is_empty() %}?ref={{ nav.display_ref }}{% endif %}" class="{% if nav.current_page == "tree" || nav.current_page == "blob" %}active{% endif %}">tree</a>
+    <a href="/{{ nav.repo_name }}/log{% if !nav.display_ref.is_empty() %}?ref={{ nav.display_ref }}{% endif %}" class="{% if nav.current_page == "log" || nav.current_page == "commit" %}active{% endif %}">log</a>
+    <a href="/{{ nav.repo_name }}/refs{% if !nav.display_ref.is_empty() %}?ref={{ nav.display_ref }}{% endif %}" class="{% if nav.current_page == "refs" %}active{% endif %}">refs</a>
+</nav>

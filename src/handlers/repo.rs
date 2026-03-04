@@ -1,0 +1,66 @@
+use std::sync::Arc;
+
+use axum::extract::{Path, Query, State};
+use axum::response::Html;
+use pulldown_cmark::{Options, Parser, html};
+
+use crate::git;
+use crate::templates::{IndexTemplate, ReadmeDisplay, ReposTemplate};
+
+use super::util::{RepoRequestContext, render_template, site_chrome};
+use super::{AppError, AppState, LogQuery};
+
+pub async fn list_repos(State(state): State<Arc<AppState>>) -> Result<Html<String>, AppError> {
+    render_template(|| {
+        Ok(ReposTemplate {
+            repos: git::list_repos(&state.repos_path)?,
+            owner: state.owner.clone(),
+            chrome: site_chrome(state.site_title.clone()),
+        })
+    })
+}
+
+pub async fn index(
+    Path(repo_name): Path<String>,
+    Query(query): Query<LogQuery>,
+    State(state): State<Arc<AppState>>,
+) -> Result<Html<String>, AppError> {
+    let ctx = RepoRequestContext::load(&state, repo_name, query.ref_name)?;
+    let chrome = ctx.chrome.clone();
+    let nav = ctx.nav("index");
+
+    render_template(move || {
+        Ok(IndexTemplate {
+            chrome,
+            nav,
+            readme: git::get_readme(&ctx.repo, ctx.git_ref())?.map(render_readme),
+        })
+    })
+}
+
+fn render_readme(readme: git::ReadmeContent) -> ReadmeDisplay {
+    let content = if readme.is_markdown {
+        render_markdown(&readme.text)
+    } else {
+        readme.text
+    };
+
+    ReadmeDisplay {
+        content,
+        is_markdown: readme.is_markdown,
+    }
+}
+
+fn render_markdown(source: &str) -> String {
+    let mut options = Options::empty();
+    options.insert(Options::ENABLE_STRIKETHROUGH);
+    options.insert(Options::ENABLE_TABLES);
+    options.insert(Options::ENABLE_TASKLISTS);
+    options.insert(Options::ENABLE_FOOTNOTES);
+
+    let parser = Parser::new_ext(source, options);
+    let mut html_output = String::new();
+    html::push_html(&mut html_output, parser);
+
+    ammonia::clean(&html_output)
+}

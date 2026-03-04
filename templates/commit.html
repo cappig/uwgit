@@ -1,0 +1,68 @@
+{% extends "base.html" %}
+
+{% block title %}{{ chrome.site_title }} | {{ nav.repo_name }} - {{ commit_title }}{% endblock %}
+
+{% block content %}
+{% include "partials/nav.html" %}
+
+<div class="commit-info">
+    <div class="commit-meta-box">
+        <div class="commit-row">
+            <span class="commit-hash">{{ commit_hash }}</span>
+            {% if branch.is_some() %}
+            <span class="commit-ref commit-branch">{{ branch.as_ref().unwrap() }}</span>
+            {% endif %}
+            {% for tag in tags %}
+            <span class="commit-ref commit-tag">{{ tag }}</span>
+            {% endfor %}
+        </div>
+        <div class="commit-row commit-row-secondary">
+            <span class="commit-author">{{ author }}</span>
+            {% if !author_email.is_empty() %}
+            <span class="commit-email">&lt;{{ author_email }}&gt;</span>
+            {% endif %}
+            <span class="commit-sep">·</span>
+            <span class="commit-time" title="{{ time.full }}">{{ time.relative }}</span>
+        </div>
+    </div>
+
+    <div class="commit-message-container">
+        <pre class="commit-message">{{ commit_message }}</pre>
+    </div>
+
+    <div class="commit-stats">
+        <strong>{{ files_changed }}</strong> files changed,
+        <strong class="insertions">{{ insertions }}</strong> insertions,
+        <strong class="deletions">{{ deletions }}</strong> deletions
+    </div>
+</div>
+
+<div class="diff-container">
+    {% for file in files %}
+    <details class="diff-file" data-diff-url="{{ file.diff_href }}">
+        <summary class="diff-file-summary">
+            <span class="diff-file-name">{{ file.file_name }}</span>
+            <span class="diff-file-badges">
+                {% if file.is_added %}
+                <span class="diff-badge diff-created">created</span>
+                {% else if file.is_deleted %}
+                <span class="diff-badge diff-removed">removed</span>
+                {% else if file.is_binary %}
+                <span class="diff-badge diff-binary">binary</span>
+                {% else if file.empty_label.is_some() %}
+                <span class="diff-badge diff-empty">empty</span>
+                {% else %}
+                <span class="diff-badge diff-add">+{{ file.adds }}</span>
+                <span class="diff-badge diff-del">-{{ file.dels }}</span>
+                {% endif %}
+            </span>
+        </summary>
+        <div class="diff-file-body" aria-live="polite"></div>
+    </details>
+    {% endfor %}
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="/static/js/commit.js" defer></script>
+{% endblock %}

@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+
+{% block title %}{{ chrome.site_title }} | {{ heading }}{% endblock %}
+
+{% block content %}
+<div class="log-item not-found">
+    <div class="log-header">
+        <div class="log-message">{{ heading }}</div>
+    </div>
+    <div class="log-meta">
+        <span>{{ message }}</span>
+    </div>
+    <div class="log-meta not-found-link">
+        <a href="/">Back to repositories</a>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,4 @@
+<span class="breadcrumb-part"><a href="{{ root_href }}">{{ nav.repo_name }}</a></span>
+{% for component in path_components %}
+<span class="breadcrumb-part">/ {% if component.href.is_some() %}<a href="{{ component.href.as_ref().unwrap() }}">{{ component.name }}</a>{% else %}{{ component.name }}{% endif %}</span>
+{% endfor %}

@@ -1,0 +1,37 @@
+{% if diff.is_binary %}
+<div class="file-content binary-diff">
+    {% if diff.size_html.is_empty() %}
+    <span class="size-unavail">Binary file</span>
+    {% else %}
+    {{ diff.size_html|safe }}
+    {% endif %}
+</div>
+{% else if diff.empty_label.is_some() %}
+<div class="file-content empty-diff">
+    <span class="size-unavail">
+        {% let label = diff.empty_label.as_ref().unwrap() %}
+        {% if label == "empty added" %}
+        <span class="size-new">Empty file added</span>
+        {% else if label == "empty deleted" %}
+        <span class="size-old">Empty file removed</span>
+        {% else %}
+        Empty file
+        {% endif %}
+    </span>
+</div>
+{% else if !diff.lines.is_empty() %}
+<div class="code-viewer">
+    <div class="code-gutter">
+        {% for line in diff.lines %}
+        <div class="line-num {{ line.class }}">{{ line.num }}</div>
+        {% endfor %}
+    </div>
+    <div class="code-scroll">
+        <div class="code-rows">
+            {% for line in diff.lines %}
+            <div class="line-code {{ line.class }}"><pre>{{ line.text }}</pre></div>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+{% endif %}

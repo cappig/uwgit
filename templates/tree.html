@@ -1,0 +1,44 @@
+{% extends "base.html" %}
+
+{% block title %}{{ chrome.site_title }} | {{ nav.repo_name }} tree{% endblock %}
+
+{% block content %}
+{% include "partials/nav.html" %}
+
+<div class="breadcrumb">
+    {% include "partials/breadcrumb_path.html" %}
+</div>
+
+<table class="tree-table">
+    <colgroup>
+        <col class="tree-col-name" />
+        <col class="tree-col-size" />
+        <col class="tree-col-modified" />
+    </colgroup>
+    <tbody>
+        {% if !path.is_empty() %}
+        <tr>
+            <td colspan="3" class="tree-entry dir">
+                <span class="tree-entry-wrap">
+                    <span class="tree-icon" aria-hidden="true"></span>
+                    <a href="{{ parent_href }}"><span class="tree-name">..</span></a>
+                </span>
+            </td>
+        </tr>
+        {% endif %}
+        
+        {% for entry in entries %}
+        <tr>
+            <td class="tree-entry {% if entry.is_dir %}dir{% else %}file{% endif %}">
+                <span class="tree-entry-wrap">
+                    <span class="tree-icon" aria-hidden="true"></span>
+                    <a href="{{ entry.href }}"><span class="tree-name">{{ entry.name }}</span></a>
+                </span>
+            </td>
+            <td>{{ entry.size_text }}</td>
+            <td class="time" {% if entry.time.is_some() %}title="{{ entry.time.as_ref().unwrap().full }}"{% endif %}>{% if entry.time.is_some() %}{{ entry.time.as_ref().unwrap().relative }}{% endif %}</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% endblock %}

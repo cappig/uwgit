@@ -1,0 +1,31 @@
+{% if pager.has_prev || pager.has_next %}
+<div class="pager">
+    {% if pager.has_prev %}
+    <a class="pager-link pager-newer" href="{{ pager.prev_href }}"><span class="pager-arrow">←</span>&thinsp;newer</a>
+    {% else %}
+    <span class="pager-spacer"></span>
+    {% endif %}
+    <div class="pager-center">
+        {% if pager.page_links.len() > 0 %}
+        <div class="pager-pages">
+            {% for link in pager.page_links %}
+            {% if link.is_ellipsis %}
+            <span class="pager-ellipsis">{{ link.label }}</span>
+            {% else %}
+            {% if link.is_current %}
+            <span class="pager-current">{{ link.label }}</span>
+            {% else %}
+            <a class="pager-link pager-page" href="{{ link.href }}">{{ link.label }}</a>
+            {% endif %}
+            {% endif %}
+            {% endfor %}
+        </div>
+        {% endif %}
+    </div>
+    {% if pager.has_next %}
+    <a class="pager-link pager-older" href="{{ pager.next_href }}">older&thinsp;<span class="pager-arrow">→</span></a>
+    {% else %}
+    <span class="pager-spacer"></span>
+    {% endif %}
+</div>
+{% endif %}

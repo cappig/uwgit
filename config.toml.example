@@ -1,0 +1,5 @@
+repos_path = "/repos"
+site_title = "git.cappig.dev"
+owner = "Cappig"
+host = "0.0.0.0"
+port = 3000

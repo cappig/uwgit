@@ -1,0 +1,29 @@
+{% extends "base.html" %}
+
+{% block title %}{{ chrome.site_title }} | {{ nav.repo_name }} log{% endblock %}
+
+{% block content %}
+{% include "partials/nav.html" %}
+
+<div class="log-list">
+    {% for commit in commits %}
+    <div class="log-item">
+        <div class="log-header">
+            <div class="log-message">
+                <a href="{{ commit.href }}">{{ commit.message }}</a>
+            </div>
+            <span class="log-time time" title="{{ commit.time.full }}">{{ commit.time.relative }}</span>
+        </div>
+        <div class="log-meta">
+            <span class="commit-hash" title="{{ commit.hash }}">{{ commit.short_hash }}</span>
+            {% for r in commit.refs %}
+            <span class="{{ r.class }}">{{ r.name }}</span>
+            {% endfor %}
+            <span class="log-sep">·</span>
+            <span class="log-author">{{ commit.author }}</span>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+{% include "partials/pager.html" %}
+{% endblock %}

@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>{% block title %}{{ chrome.site_title }}{% endblock %}</title>
+
+    <link rel="stylesheet" href="/static/font.css">
+    <link rel="icon" href="/static/img/favicon.ico" type="image/x-icon">
+
+    <link rel="preload" href="/static/fonts/unifrakturcook-v24.woff2" crossorigin="anonymous" as="font" type="font/woff2">
+    <link rel="preload" href="/static/fonts/ibm-plex-mono-v20-latin-regular.woff2" crossorigin="anonymous" as="font" type="font/woff2">
+    <link rel="preload" href="/static/fonts/ibm-plex-mono-v20-latin-600.woff2" crossorigin="anonymous" as="font" type="font/woff2">
+    <link rel="preload" href="/static/fonts/ibm-plex-mono-v20-latin-700.woff2" crossorigin="anonymous" as="font" type="font/woff2">
+
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+    <header>
+        <div class="header-row">
+            <h1 class="title">
+                <a href="/">{{ chrome.site_title }}</a>
+                {% if chrome.header_repo.is_some() %}
+                <span class="title-sep">/</span>
+                <span class="title-context">
+                    <span class="title-repo">{{ chrome.header_repo.as_ref().unwrap() }}</span>
+                    {% if chrome.header_branch.is_some() || chrome.header_tag.is_some() %}
+                    <span class="title-ref-group">
+                        {% if chrome.header_branch.is_some() %}
+                        <span class="ref-type-label title-ref commit-branch">{{ chrome.header_branch.as_ref().unwrap() }}</span>
+                        {% endif %}
+                        {% if chrome.header_tag.is_some() %}
+                        <span class="ref-type-label title-ref commit-tag">{{ chrome.header_tag.as_ref().unwrap() }}</span>
+                        {% endif %}
+                    </span>
+                    {% endif %}
+                </span>
+                {% endif %}
+            </h1>
+        </div>
+    </header>
+
+    <main>
+        {% block content %}{% endblock %}
+    </main>
+
+    {% block scripts %}{% endblock %}
+</body>
+</html>

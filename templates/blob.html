@@ -1,0 +1,31 @@
+{% extends "base.html" %}
+
+{% block title %}{{ chrome.site_title }} | {{ nav.repo_name }} - {{ file_path }}{% endblock %}
+
+{% block content %}
+{% include "partials/nav.html" %}
+
+<div class="breadcrumbs">
+    <div class="breadcrumb">
+        {% include "partials/breadcrumb_path.html" %}
+    </div>
+    
+    <div class="breadcrumb-actions">
+        <a href="{{ blob_href }}&raw=1">raw</a>
+    </div>
+</div>
+
+{% if is_image %}
+<div class="image-view">
+    <img src="{{ blob_href }}&raw=1" alt="{{ file_path }}">
+</div>
+{% else %}
+    {% if is_binary %}
+    <div class="file-content">
+        <p>Binary file, contents not shown</p>
+    </div>
+    {% else %}
+    {% include "partials/code_viewer.html" %}
+    {% endif %}
+{% endif %}
+{% endblock %}
