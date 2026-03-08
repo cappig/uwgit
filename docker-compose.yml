@@ -1,0 +1,17 @@
+services:
+  uwgit:
+    build: .
+    container_name: uwgit
+    restart: unless-stopped
+    working_dir: /app
+    user: "${UID:-1000}:${GID:-1000}"
+    command: ["/app/uwgit"]
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./config.toml:/app/config.toml:ro
+      - ${REPOS_PATH:-/home/matt/Desktop/repos}:/repos:ro
+
+networks:
+  default:
+    driver: bridge
