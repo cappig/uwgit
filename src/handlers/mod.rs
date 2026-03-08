@@ -3,6 +3,7 @@ use crate::config::AppConfig;
 pub mod errors;
 pub mod util;
 
+mod archive;
 mod blob;
 mod commit;
 mod log;
@@ -10,6 +11,7 @@ mod refs;
 mod repo;
 mod tree;
 
+pub use archive::archive;
 pub use blob::blob;
 pub use commit::{commit, commit_diff};
 pub use errors::AppError;
@@ -32,6 +34,12 @@ impl AppState {
             owner: config.owner.clone(),
         }
     }
+}
+
+#[derive(serde::Deserialize)]
+pub struct ArchiveQuery {
+    #[serde(rename = "ref")]
+    pub ref_name: Option<String>,
 }
 
 #[derive(serde::Deserialize)]

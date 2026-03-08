@@ -13,6 +13,7 @@ pub struct RepoNav {
     pub repo_name: String,
     pub display_ref: String,
     pub current_page: &'static str,
+    pub archive_href: String,
 }
 
 #[derive(Clone)]

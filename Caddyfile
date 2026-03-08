@@ -1,0 +1,28 @@
+git.cappig.dev {
+    tls {
+        dns cloudflare {env.CLOUDFLARE_API_TOKEN}
+    }
+
+    encode gzip zstd
+
+    header {
+        X-Content-Type-Options "nosniff"
+        X-Frame-Options "DENY"
+        Referrer-Policy "strict-origin-when-cross-origin"
+        Content-Security-Policy "default-src 'self'; img-src 'self' data:; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; font-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'none'; upgrade-insecure-requests"
+        X-Permitted-Cross-Domain-Policies "none"
+        Strict-Transport-Security "max-age=31536000; includeSubDomains; preload"
+    }
+
+    @fonts {
+        path *.woff2 *.ttf
+    }
+    header @fonts Cache-Control "public, max-age=31536000, immutable"
+
+    @static {
+        path *.css *.js
+    }
+    header @static Cache-Control "public, max-age=31536000"
+
+    reverse_proxy 127.0.0.1:3000
+}

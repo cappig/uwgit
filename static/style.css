@@ -7,7 +7,7 @@
 
     --diff-add-bg: rgba(40, 180, 40, 0.28);
     --diff-remove-bg: rgba(220, 60, 60, 0.28);
-    --muted-text: #9ca3af;
+    --muted-text: 156, 163, 175;
 
     --fs-xs: 0.8rem;
     --fs-sm: 0.9rem;
@@ -195,6 +195,23 @@ nav a.active {
     background: rgba(var(--text-primary), 0.1);
     border-color: rgba(var(--text-primary), 0.18);
     text-decoration: none;
+}
+
+nav .nav-download {
+    margin-left: auto;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.38rem;
+}
+
+nav .nav-download::before {
+    content: "";
+    width: 0.95em;
+    height: 0.95em;
+    flex: none;
+    background-color: currentColor;
+    -webkit-mask: url('/static/img/download.svg') no-repeat center / contain;
+    mask: url('/static/img/download.svg') no-repeat center / contain;
 }
 
 .repo-list {
@@ -467,10 +484,6 @@ tr:hover {
 .time {
     color: rgb(var(--text-secondary));
     font-size: var(--fs-sm);
-}
-
-.time[title] {
-    cursor: help;
 }
 
 .file-content {
@@ -760,7 +773,7 @@ tr:hover {
 .size-new { color: #27ae60; }
 .size-arrow {
     margin: 0 0.8rem;
-    color: var(--muted-text);
+    color: rgb(var(--muted-text));
     font-size: var(--fs-md);
     display: inline-flex;
     align-items: center;
@@ -1153,6 +1166,10 @@ tr:hover {
 
     nav {
         justify-content: center;
+    }
+
+    nav .nav-download {
+        margin-left: 0;
     }
 
     .log-meta,

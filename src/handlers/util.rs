@@ -115,6 +115,7 @@ impl RepoRequestContext {
             repo_name: self.repo_name.clone(),
             display_ref: self.display_ref.clone(),
             current_page,
+            archive_href: self.append_ref(format!("/{}/archive.tar.gz", self.repo_name)),
         }
     }
 

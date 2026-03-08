@@ -17,7 +17,8 @@ pub async fn commit(
 ) -> Result<Html<String>, AppError> {
     let ctx = RepoRequestContext::load(&state, repo_name, query.ref_name.clone())?;
     let chrome = ctx.chrome.clone();
-    let nav = ctx.nav("commit");
+    let mut nav = ctx.nav("commit");
+    nav.archive_href = format!("/{}/archive.tar.gz?ref={}", ctx.repo_name, commit_hash);
 
     render_template(move || {
         let commit_info =
