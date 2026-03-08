@@ -1,4 +1,4 @@
-git.cappig.dev {
+www.git.cappig.dev git.cappig.dev {
     tls {
         dns cloudflare {env.CLOUDFLARE_API_TOKEN}
     }
@@ -7,10 +7,8 @@ git.cappig.dev {
 
     header {
         X-Content-Type-Options "nosniff"
-        X-Frame-Options "DENY"
         Referrer-Policy "strict-origin-when-cross-origin"
-        Content-Security-Policy "default-src 'self'; img-src 'self' data:; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; font-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'none'; upgrade-insecure-requests"
-        X-Permitted-Cross-Domain-Policies "none"
+        Content-Security-Policy "default-src 'self'; img-src 'self' data: https:; object-src 'none'; base-uri 'self'; frame-ancestors 'none'"
         Strict-Transport-Security "max-age=31536000; includeSubDomains; preload"
     }
 
