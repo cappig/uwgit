@@ -12,7 +12,7 @@ use crate::config::AppConfig;
 
 #[tokio::main]
 async fn main() {
-    let config = AppConfig::load("config.toml").expect("failed to load config");
+    let config = AppConfig::load().expect("failed to load config");
     let app = build_app(&config);
 
     let addr = format!("{}:{}", config.host, config.port);

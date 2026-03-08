@@ -1,6 +1,3 @@
-use std::fs;
-use std::path::Path;
-
 use anyhow::Context;
 use serde::Deserialize;
 
@@ -14,13 +11,21 @@ pub struct AppConfig {
 }
 
 impl AppConfig {
-    pub fn load(path: impl AsRef<Path>) -> anyhow::Result<Self> {
-        let path = path.as_ref();
+    pub fn load() -> anyhow::Result<Self> {
+        let _ = dotenvy::dotenv();
 
-        let raw = fs::read_to_string(path)
-            .with_context(|| format!("failed to read config: {}", path.display()))?;
-
-        return toml::from_str(&raw)
-            .with_context(|| format!("failed to parse config: {}", path.display()));
+        Ok(Self {
+            repos_path: required_var("REPOS_PATH")?,
+            site_title: required_var("SITE_TITLE")?,
+            owner: required_var("OWNER")?,
+            host: required_var("HOST")?,
+            port: required_var("PORT")?
+                .parse()
+                .with_context(|| "failed to parse PORT as an integer".to_string())?,
+        })
     }
+}
+
+fn required_var(name: &str) -> anyhow::Result<String> {
+    std::env::var(name).with_context(|| format!("missing required env var: {}", name))
 }

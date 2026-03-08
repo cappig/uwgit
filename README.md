@@ -6,14 +6,14 @@
 
 ### Run
 
-`uwGit` reads `config.toml` from the project root.
+`uwGit` reads configuration from `.env`.
 
-```toml
-repos_path = "/path/to/repos"
-site_title = "git.example.dev"
-owner = "Your Name"
-host = "0.0.0.0"
-port = 3000
+```env
+REPOS_PATH=/path/to/repos
+SITE_TITLE=git.example.dev
+OWNER=Your Name
+HOST=0.0.0.0
+PORT=3000
 ```
 
 Then start it:
