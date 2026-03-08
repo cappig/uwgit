@@ -20,7 +20,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 
 COPY --from=builder /app/target/release/uwgit /app/uwgit
 COPY --from=builder /app/static /app/static
-COPY config.toml.example /app/config.toml
+COPY config.toml /app/config.toml
 
 EXPOSE 3000
 CMD ["/app/uwgit"]
