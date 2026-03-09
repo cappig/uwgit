@@ -1,14 +1,12 @@
 <div class="code-viewer">
-    <div class="code-gutter">
-        {% for line in lines %}
-        <div class="line-num {{ line.class }}">{{ line.num }}</div>
-        {% endfor %}
-    </div>
     <div class="code-scroll">
         <div class="code-rows">
-            {% for line in lines %}
-            <div class="line-code {{ line.class }}"><pre>{{ line.text }}</pre></div>
-            {% endfor %}
+        {% for line in lines %}
+        <div class="code-row {{ line.class }}">
+            <div class="line-num">{{ line.num }}</div>
+            <div class="line-code"><pre>{{ line.text }}</pre></div>
+        </div>
+        {% endfor %}
         </div>
     </div>
 </div>

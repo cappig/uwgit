@@ -1,13 +1,12 @@
 :root {
-    --bg-primary: 35, 35, 35;
-    --bg-secondary: 55, 55, 55;
-    --text-primary: 255, 255, 248;
-    --text-secondary: 235, 235, 215;
-    --accent-hover: 45, 175, 180;
-
-    --diff-add-bg: rgba(40, 180, 40, 0.28);
-    --diff-remove-bg: rgba(220, 60, 60, 0.28);
-    --muted-text: 156, 163, 175;
+    --bg-primary: 34, 34, 34;
+    --bg-secondary: 52, 52, 51;
+    --text-primary: 251, 249, 243;
+    --text-secondary: 229, 226, 214;
+    --accent-hover: 58, 168, 172;
+    --diff-add: 43, 168, 94;
+    --diff-remove: 186, 68, 52;
+    --muted-text: 154, 160, 169;
 
     --fs-xs: 0.8rem;
     --fs-sm: 0.9rem;
@@ -160,6 +159,7 @@ header a:hover {
     align-self: center;
     font-family: 'IBM Plex Mono', monospace;
     padding-inline: 0.65rem;
+    font-weight: 500;
 }
 
 nav {
@@ -168,7 +168,7 @@ nav {
     font-size: var(--fs-md);
     flex-wrap: wrap;
     margin: 0.6rem 0 1.1rem;
-    border-bottom: 1px solid rgba(var(--text-primary), 0.18);
+    border-bottom: 1px solid rgba(var(--text-primary), 0.14);
     padding-bottom: 0;
 }
 
@@ -186,14 +186,15 @@ nav a {
 nav a:hover {
     color: rgb(var(--text-primary));
     background: rgba(var(--bg-secondary), 0.2);
-    border-color: rgba(var(--bg-secondary), 0.6);
+    border-color: rgba(var(--bg-secondary), 0.45);
     text-decoration: none;
 }
 
 nav a.active {
     color: rgb(var(--text-primary));
-    background: rgba(var(--text-primary), 0.1);
-    border-color: rgba(var(--text-primary), 0.18);
+    background: rgba(var(--text-secondary), 0.08);
+    border-color: rgba(var(--text-secondary), 0.12);
+    border-bottom: none;
     text-decoration: none;
 }
 
@@ -229,7 +230,7 @@ nav .nav-download::before {
 .commit-meta-box,
 .image-view {
     background: rgba(var(--bg-secondary), 0.35);
-    border: 1px solid rgba(var(--bg-secondary), 0.7);
+    border: 1px solid rgba(var(--bg-secondary), 0.58);
 }
 
 .repo-list li {
@@ -412,13 +413,16 @@ tr:hover {
     color: rgb(var(--text-secondary));
     text-transform: lowercase;
     padding: 0.15rem 0.5rem;
-    border: 1px solid rgba(var(--text-primary), 0.2);
-    background-color: rgba(var(--text-primary), 0.08);
+    background-color: rgba(var(--text-secondary), 0.08);
     margin-right: 0;
     display: inline-block;
     min-width: 4.5ch;
     text-align: center;
     line-height: 1.1;
+}
+
+.ref-type-label:not(.commit-branch):not(.commit-tag):not(.ref-kind-branch):not(.ref-kind-tag) {
+    border: 1px solid rgba(var(--text-secondary), 0.18);
 }
 
 .commit-branch,
@@ -497,29 +501,21 @@ tr:hover {
 }
 
 .code-viewer {
-    display: flex;
     font-family: inherit;
     font-size: var(--fs-sm);
     line-height: 1.5;
 }
 
-.code-gutter {
-    flex: none;
-    user-select: none;
-    text-align: right;
-    background-color: transparent;
-    z-index: 2;
-}
-
 .code-scroll {
-    flex: 1;
     overflow-x: auto;
     overflow-y: hidden;
     background-color: transparent;
 }
 
 .code-rows {
-    width: fit-content;
+    display: grid;
+    grid-template-columns: max-content auto;
+    width: max-content;
     min-width: 100%;
     overflow-y: visible;
 }
@@ -530,19 +526,27 @@ tr:hover {
     color: rgb(var(--text-secondary));
     white-space: nowrap;
     height: 1.5em;
-    width: 100%;
+    width: auto;
     display: block;
+    position: sticky;
+    left: 0;
+    z-index: 1;
     border-right: 1px solid rgba(var(--bg-secondary), 0.6);
+    background-color: rgba(var(--bg-secondary), 0.35);
 }
 
-.line-num.line-add {
-    background-color: rgba(34, 139, 34, 0.06);
-    border-right-color: rgba(34, 139, 34, 0.2);
+.code-row {
+    display: contents;
 }
 
-.line-num.line-remove {
-    background-color: rgba(220, 20, 60, 0.06);
-    border-right-color: rgba(220, 20, 60, 0.2);
+.code-row.line-add > .line-num {
+    background-color: rgba(var(--diff-add), 0.06);
+    border-right-color: rgba(var(--diff-add), 0.2);
+}
+
+.code-row.line-remove > .line-num {
+    background-color: rgba(var(--diff-remove), 0.06);
+    border-right-color: rgba(var(--diff-remove), 0.2);
 }
 
 .line-code {
@@ -550,18 +554,23 @@ tr:hover {
     color: rgb(var(--text-primary));
     white-space: pre;
     height: 1.5em;
+    display: block;
+    min-width: 0;
 }
 
-.code-gutter .line-num:first-child,
-.code-rows .line-code:first-child {
-    padding-top: 0.3rem;
-    height: calc(1.5em + 0.3rem);
+.code-row:hover > .line-num,
+.code-row:hover > .line-code {
+    background-color: rgba(var(--text-primary), 0.04);
 }
 
-.code-gutter .line-num:last-child,
-.code-rows .line-code:last-child {
-    padding-bottom: 0.3rem;
-    height: calc(1.5em + 0.3rem);
+.code-row.line-add:hover > .line-num,
+.code-row.line-add:hover > .line-code {
+    background-color: rgba(var(--diff-add), 0.12);
+}
+
+.code-row.line-remove:hover > .line-num,
+.code-row.line-remove:hover > .line-code {
+    background-color: rgba(var(--diff-remove), 0.12);
 }
 
 .line-code pre {
@@ -651,19 +660,28 @@ tr:hover {
 }
 
 .diff-file {
-    margin-bottom: 1.5rem;
+    margin-bottom: 1rem;
+    background: rgba(var(--bg-secondary), 0.35);
+    border: 1px solid rgba(var(--bg-secondary), 0.58);
+}
+
+.diff-file:last-child {
+    margin-bottom: 0;
 }
 
 .diff-file-summary {
     font-size: var(--fs-base);
     font-weight: 400;
-    margin: 0 0 0.5rem 0;
+    margin: 0;
+    padding: 0.75rem 0.9rem;
     display: flex;
     align-items: center;
     gap: 0.5rem;
     flex-wrap: wrap;
     cursor: pointer;
     color: rgb(var(--text-primary));
+    background: transparent;
+    border: 0;
 }
 
 .diff-file-name {
@@ -682,7 +700,7 @@ tr:hover {
 }
 
 .diff-badge {
-    background-color: rgba(var(--text-primary), 0.08);
+    background-color: rgba(var(--text-secondary), 0.08);
     border: 0;
     padding: 0.1rem 0.4rem;
     font-size: var(--fs-xs);
@@ -696,20 +714,20 @@ tr:hover {
 }
 
 .diff-add {
-    color: #27ae60;
+    color: rgb(var(--diff-add));
 }
 
 .diff-del {
-    color: #c0392b;
+    color: rgb(var(--diff-remove));
 }
 
 .diff-created {
-    color: #27ae60;
+    color: rgb(var(--diff-add));
     min-width: 6ch;
 }
 
 .diff-removed {
-    color: #c0392b;
+    color: rgb(var(--diff-remove));
     min-width: 6ch;
 }
 
@@ -738,8 +756,19 @@ tr:hover {
     content: "▾";
 }
 
+.diff-file[open] > .diff-file-summary {
+    border-bottom: 1px solid rgba(var(--bg-secondary), 0.58);
+}
+
 .diff-file-body:empty {
     display: none;
+}
+
+.diff-file-body > .code-viewer,
+.diff-file-body > .file-content,
+.diff-file-body > .diff-file-state {
+    border: 0;
+    background: transparent;
 }
 
 .diff-file-state {
@@ -769,8 +798,8 @@ tr:hover {
     color: rgb(var(--text-secondary));
 }
 
-.size-old { color: #c0392b; }
-.size-new { color: #27ae60; }
+.size-old { color: rgb(var(--diff-remove)); }
+.size-new { color: rgb(var(--diff-add)); }
 .size-arrow {
     margin: 0 0.8rem;
     color: rgb(var(--muted-text));
@@ -785,12 +814,12 @@ tr:hover {
     font-weight: bold;
 }
 
-.line-add {
-    background-color: var(--diff-add-bg);
+.code-row.line-add > .line-code {
+    background-color: rgba(var(--diff-add), 0.18);
 }
 
-.line-remove {
-    background-color: var(--diff-remove-bg);
+.code-row.line-remove > .line-code {
+    background-color: rgba(var(--diff-remove), 0.18);
 }
 
 .commit-info {
@@ -830,15 +859,18 @@ tr:hover {
 }
 
 .commit-ref {
-    background-color: rgba(var(--text-primary), 0.08);
+    background-color: rgba(var(--text-secondary), 0.08);
     padding: 0.1rem 0.45rem;
     display: inline-flex;
     align-items: center;
-    border: 1px solid rgba(var(--text-primary), 0.2);
     font-family: inherit;
     color: rgb(var(--text-primary));
     line-height: 1.1;
     font-size: var(--fs-xs);
+}
+
+.commit-ref:not(.commit-branch):not(.commit-tag) {
+    border: 1px solid rgba(var(--text-secondary), 0.18);
 }
 
 .commit-sep,
@@ -853,18 +885,18 @@ tr:hover {
 }
 
 .commit-stats {
-    margin-top: 0.4rem;
+    margin-top: 0.8rem;
     margin-bottom: 0.8rem;
     color: rgb(var(--text-secondary));
     line-height: 1.35;
 }
 
 .insertions {
-    color: #27ae60;
+    color: rgb(var(--diff-add));
 }
 
 .deletions {
-    color: #c0392b;
+    color: rgb(var(--diff-remove));
 }
 
 .image-view {
