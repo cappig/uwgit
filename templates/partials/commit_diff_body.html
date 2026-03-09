@@ -25,8 +25,8 @@
         <div class="code-rows">
         {% for line in diff.lines %}
         <div class="code-row {{ line.class }}">
-            <div class="line-num">{{ line.num }}</div>
-            <div class="line-code"><pre>{{ line.text }}</pre></div>
+            <div class="line-num"><span class="line-num-inner">{{ line.num }}</span></div>
+            <div class="line-code"><pre class="line-code-inner">{{ line.text }}</pre></div>
         </div>
         {% endfor %}
         </div>

@@ -521,11 +521,6 @@ tr:hover {
 }
 
 .line-num {
-    padding: 0 0.75rem;
-    text-align: right;
-    color: rgb(var(--text-secondary));
-    white-space: nowrap;
-    height: 1.5em;
     width: auto;
     display: block;
     position: sticky;
@@ -550,36 +545,67 @@ tr:hover {
 }
 
 .line-code {
-    padding: 0 0 0 1rem;
-    color: rgb(var(--text-primary));
-    white-space: pre;
-    height: 1.5em;
     display: block;
     min-width: 0;
 }
 
-.code-row:hover > .line-num,
-.code-row:hover > .line-code {
+.code-row.line-add > .line-code {
+    background-color: rgba(var(--diff-add), 0.18);
+}
+
+.code-row.line-remove > .line-code {
+    background-color: rgba(var(--diff-remove), 0.18);
+}
+
+.line-num-inner,
+.line-code-inner {
+    display: block;
+    height: 1.5em;
+}
+
+.line-num-inner {
+    padding: 0 0.75rem;
+    text-align: right;
+    color: rgb(var(--text-secondary));
+    white-space: nowrap;
+}
+
+.line-code-inner {
+    padding: 0 0 0 1rem;
+    color: rgb(var(--text-primary));
+    white-space: pre;
+}
+
+.code-row:first-child > .line-num,
+.code-row:first-child > .line-code {
+    padding-top: 0.3rem;
+}
+
+.code-row:last-child > .line-num,
+.code-row:last-child > .line-code {
+    padding-bottom: 0.3rem;
+}
+
+.code-row:has(.line-num-inner:hover, .line-code-inner:hover) > .line-num > .line-num-inner,
+.code-row:has(.line-num-inner:hover, .line-code-inner:hover) > .line-code > .line-code-inner {
     background-color: rgba(var(--text-primary), 0.04);
 }
 
-.code-row.line-add:hover > .line-num,
-.code-row.line-add:hover > .line-code {
+.code-row.line-add:has(.line-num-inner:hover, .line-code-inner:hover) > .line-num > .line-num-inner,
+.code-row.line-add:has(.line-num-inner:hover, .line-code-inner:hover) > .line-code > .line-code-inner {
     background-color: rgba(var(--diff-add), 0.12);
 }
 
-.code-row.line-remove:hover > .line-num,
-.code-row.line-remove:hover > .line-code {
+.code-row.line-remove:has(.line-num-inner:hover, .line-code-inner:hover) > .line-num > .line-num-inner,
+.code-row.line-remove:has(.line-num-inner:hover, .line-code-inner:hover) > .line-code > .line-code-inner {
     background-color: rgba(var(--diff-remove), 0.12);
 }
 
-.line-code pre {
+.line-code-inner {
     margin: 0;
-    padding: 0;
     background: transparent;
     border: none;
     font-family: inherit;
-    display: inline;
 }
 .tree-table td {
     padding: 0.3rem 0.6rem;
@@ -1142,11 +1168,11 @@ tr:hover {
         padding: 0.85rem;
     }
 
-    .line-num {
+    .line-num-inner {
         padding: 0 0.5rem;
     }
 
-    .line-code {
+    .line-code-inner {
         padding-left: 0.8rem;
     }
 
@@ -1228,7 +1254,7 @@ tr:hover {
         gap: 0.6rem;
     }
 
-    .line-code {
+    .line-code-inner {
         padding-left: 0.65rem;
     }
 
