@@ -3,6 +3,7 @@ use std::time::{SystemTime, UNIX_EPOCH};
 
 use askama::Template;
 use axum::response::Html;
+use moka::sync::Cache;
 use time::OffsetDateTime;
 
 use crate::git;
@@ -48,10 +49,9 @@ pub fn open_repo_checked(
     }
 
     let repo_path = state.repos_path.join(repo_name);
-    let base = std::fs::canonicalize(&state.repos_path).map_err(|_| AppError::NotFound)?;
     let repo = std::fs::canonicalize(&repo_path).map_err(|_| AppError::NotFound)?;
 
-    if !repo.starts_with(&base) {
+    if !repo.starts_with(&state.repos_path) {
         return Err(AppError::NotFound);
     }
 
@@ -108,6 +108,12 @@ impl RepoRequestContext {
         self.git_ref.as_deref()
     }
 
+    pub fn commit_oid(&self) -> Result<String, AppError> {
+        git::commit_for_ref(&self.repo, self.git_ref())
+            .map(|commit| commit.id().to_string())
+            .map_err(|_| AppError::NotFound)
+    }
+
     pub fn append_ref(&self, url: String) -> String {
         append_ref(url, &self.display_ref)
     }
@@ -137,12 +143,32 @@ pub fn site_chrome(site_title: String) -> PageChrome {
     }
 }
 
-pub fn render_template<T, F>(build: F) -> Result<Html<String>, AppError>
+pub fn render_cached_template<T, F>(
+    cache: &Cache<String, String>,
+    key: String,
+    build: F,
+) -> Result<Html<String>, AppError>
 where
     T: Template,
     F: FnOnce() -> Result<T, AppError>,
 {
-    Ok(Html(build()?.render()?))
+    if let Some(html) = cache.get(&key) {
+        return Ok(Html(html));
+    }
+
+    let html = build()?.render()?;
+    cache.insert(key, html.clone());
+    Ok(Html(html))
+}
+
+pub async fn run_blocking<T, F>(work: F) -> Result<T, AppError>
+where
+    T: Send + 'static,
+    F: FnOnce() -> Result<T, AppError> + Send + 'static,
+{
+    tokio::task::spawn_blocking(work)
+        .await
+        .map_err(|err| AppError::Internal(err.into()))?
 }
 
 pub fn relative_time(timestamp: i64) -> String {

@@ -7,7 +7,9 @@ use axum::response::Html;
 use crate::git;
 use crate::templates::{CommitDiffBodyTemplate, CommitFileSummary, CommitTemplate};
 
-use super::util::{RepoRequestContext, display_time, is_safe_repo_path, render_template};
+use super::util::{
+    RepoRequestContext, display_time, is_safe_repo_path, render_cached_template, run_blocking,
+};
 use super::{AppError, AppState, CommitDiffQuery, CommitQuery};
 
 pub async fn commit(
@@ -15,38 +17,46 @@ pub async fn commit(
     Query(query): Query<CommitQuery>,
     State(state): State<Arc<AppState>>,
 ) -> Result<Html<String>, AppError> {
-    let ctx = RepoRequestContext::load(&state, repo_name, query.ref_name.clone())?;
-    let chrome = ctx.chrome.clone();
-    let mut nav = ctx.nav("commit");
-    nav.archive_href = format!("/{}/archive.tar.gz?ref={}", ctx.repo_name, commit_hash);
+    run_blocking(move || {
+        let ctx = RepoRequestContext::load(&state, repo_name, query.ref_name.clone())?;
+        let chrome = ctx.chrome.clone();
+        let mut nav = ctx.nav("commit");
+        nav.archive_href = format!("/{}/archive.tar.gz?ref={}", ctx.repo_name, commit_hash);
+        let cache_key = format!(
+            "commit:{}:{}:{}",
+            ctx.repo_name, ctx.display_ref, commit_hash
+        );
 
-    render_template(move || {
-        let commit_info =
-            git::get_commit(&ctx.repo, &commit_hash).map_err(|_| AppError::NotFound)?;
-        let commit_message = commit_info.message.trim_end().to_string();
-        let (files_raw, diff_stats) = git::get_commit_diff_summaries(&ctx.repo, &commit_hash)
-            .map_err(|_| AppError::NotFound)?;
+        render_cached_template(&state.short_html_cache, cache_key, move || {
+            let commit_info =
+                git::get_commit(&ctx.repo, &commit_hash).map_err(|_| AppError::NotFound)?;
+            let commit_message = commit_info.message.trim_end().to_string();
+            let (files_raw, diff_stats) = git::get_commit_diff_summaries(&ctx.repo, &commit_hash)
+                .map_err(|_| AppError::NotFound)?;
 
-        Ok(CommitTemplate {
-            chrome,
-            nav,
-            commit_title: commit_message.lines().next().unwrap_or("").to_string(),
-            commit_message,
-            commit_hash: commit_info.hash,
-            branch: resolve_branch(&ctx.repo, &commit_hash, ctx.git_ref()),
-            tags: git::tags_for_commit(&ctx.repo, &commit_hash).map_err(|_| AppError::NotFound)?,
-            author: commit_info.author,
-            author_email: commit_info.author_email,
-            time: display_time(commit_info.time),
-            files: files_raw
-                .into_iter()
-                .map(|summary| build_commit_file_summary(&ctx, &commit_hash, summary))
-                .collect(),
-            files_changed: diff_stats.files_changed,
-            insertions: diff_stats.insertions,
-            deletions: diff_stats.deletions,
+            Ok(CommitTemplate {
+                chrome,
+                nav,
+                commit_title: commit_message.lines().next().unwrap_or("").to_string(),
+                commit_message,
+                commit_hash: commit_info.hash,
+                branch: resolve_branch(&ctx.repo, &commit_hash, ctx.git_ref()),
+                tags: git::tags_for_commit(&ctx.repo, &commit_hash)
+                    .map_err(|_| AppError::NotFound)?,
+                author: commit_info.author,
+                author_email: commit_info.author_email,
+                time: display_time(commit_info.time),
+                files: files_raw
+                    .into_iter()
+                    .map(|summary| build_commit_file_summary(&ctx, &commit_hash, summary))
+                    .collect(),
+                files_changed: diff_stats.files_changed,
+                insertions: diff_stats.insertions,
+                deletions: diff_stats.deletions,
+            })
         })
     })
+    .await
 }
 
 pub async fn commit_diff(
@@ -54,19 +64,26 @@ pub async fn commit_diff(
     Query(query): Query<CommitDiffQuery>,
     State(state): State<Arc<AppState>>,
 ) -> Result<Html<String>, AppError> {
-    let ctx = RepoRequestContext::load(&state, repo_name, query.ref_name)?;
-
     if !is_safe_repo_path(&query.path) {
         return Err(AppError::BadRequest);
     }
 
-    render_template(move || {
-        let diff = git::get_commit_diff_for_path(&ctx.repo, &commit_hash, &query.path)
-            .map_err(|_| AppError::NotFound)?
-            .ok_or(AppError::NotFound)?;
+    run_blocking(move || {
+        let ctx = RepoRequestContext::load(&state, repo_name, query.ref_name)?;
+        let cache_key = format!(
+            "commit-diff:{}:{}:{}:{}",
+            ctx.repo_name, ctx.display_ref, commit_hash, query.path
+        );
 
-        Ok(CommitDiffBodyTemplate { diff })
+        render_cached_template(&state.long_html_cache, cache_key, move || {
+            let diff = git::get_commit_diff_for_path(&ctx.repo, &commit_hash, &query.path)
+                .map_err(|_| AppError::NotFound)?
+                .ok_or(AppError::NotFound)?;
+
+            Ok(CommitDiffBodyTemplate { diff })
+        })
     })
+    .await
 }
 
 fn build_commit_file_summary(

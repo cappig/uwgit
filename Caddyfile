@@ -8,7 +8,7 @@ www.git.cappig.dev git.cappig.dev {
     header {
         X-Content-Type-Options "nosniff"
         Referrer-Policy "strict-origin-when-cross-origin"
-        Content-Security-Policy "default-src 'self'; img-src 'self' data: https:; object-src 'none'; base-uri 'self'; frame-ancestors 'none'"
+        Content-Security-Policy "default-src 'self'; style-src 'self'; style-src-attr 'unsafe-inline'; img-src 'self' data: https:; object-src 'none'; base-uri 'self'; frame-ancestors 'none'"
         Strict-Transport-Security "max-age=31536000; includeSubDomains; preload"
     }
 

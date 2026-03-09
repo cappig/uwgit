@@ -20,15 +20,19 @@
     </span>
 </div>
 {% else if !diff.lines.is_empty() %}
-<div class="code-viewer diff-code-viewer" style="--diff-gutter-width: calc({{ diff.gutter_chars }}ch + 0.6rem);">
+<div class="code-viewer diff-code-viewer{% if !diff.use_double_gutter %} diff-single-gutter{% endif %}" style="--diff-gutter-width: calc({{ diff.gutter_chars }}ch + 0.6rem);">
     <div class="code-scroll">
         <div class="code-rows">
         {% for line in diff.lines %}
         <div class="code-row {{ line.class }}">
             <div class="line-num">
                 <span class="line-num-inner">
+                    {% if diff.use_double_gutter %}
                     <span class="line-num-old">{% if line.old_num.is_some() %}{{ line.old_num.as_ref().unwrap() }}{% endif %}</span>
                     <span class="line-num-new">{% if line.new_num.is_some() %}{{ line.new_num.as_ref().unwrap() }}{% endif %}</span>
+                    {% else %}
+                    <span class="line-num-single">{{ line.num }}</span>
+                    {% endif %}
                 </span>
             </div>
             <div class="line-code"><pre class="line-code-inner">{{ line.html|safe }}</pre></div>

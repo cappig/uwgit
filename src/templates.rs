@@ -62,6 +62,7 @@ pub struct FileDiff {
     pub empty_label: Option<String>,
     pub size_html: String,
     pub gutter_chars: usize,
+    pub use_double_gutter: bool,
     pub lines: Vec<DiffLine>,
 }
 

@@ -7,17 +7,20 @@ use pulldown_cmark::{Options, Parser, html};
 use crate::git;
 use crate::templates::{IndexTemplate, ReadmeDisplay, ReposTemplate};
 
-use super::util::{RepoRequestContext, render_template, site_chrome};
+use super::util::{RepoRequestContext, render_cached_template, run_blocking, site_chrome};
 use super::{AppError, AppState, LogQuery};
 
 pub async fn list_repos(State(state): State<Arc<AppState>>) -> Result<Html<String>, AppError> {
-    render_template(|| {
-        Ok(ReposTemplate {
-            repos: git::list_repos(&state.repos_path)?,
-            owner: state.owner.clone(),
-            chrome: site_chrome(state.site_title.clone()),
+    run_blocking(move || {
+        render_cached_template(&state.short_html_cache, "repos".to_string(), || {
+            Ok(ReposTemplate {
+                repos: git::list_repos(&state.repos_path)?,
+                owner: state.owner.clone(),
+                chrome: site_chrome(state.site_title.clone()),
+            })
         })
     })
+    .await
 }
 
 pub async fn index(
@@ -25,17 +28,26 @@ pub async fn index(
     Query(query): Query<LogQuery>,
     State(state): State<Arc<AppState>>,
 ) -> Result<Html<String>, AppError> {
-    let ctx = RepoRequestContext::load(&state, repo_name, query.ref_name)?;
-    let chrome = ctx.chrome.clone();
-    let nav = ctx.nav("index");
+    run_blocking(move || {
+        let ctx = RepoRequestContext::load(&state, repo_name, query.ref_name)?;
+        let chrome = ctx.chrome.clone();
+        let nav = ctx.nav("index");
+        let cache_key = format!(
+            "index:{}:{}:{}",
+            ctx.repo_name,
+            ctx.display_ref,
+            ctx.commit_oid()?
+        );
 
-    render_template(move || {
-        Ok(IndexTemplate {
-            chrome,
-            nav,
-            readme: git::get_readme(&ctx.repo, ctx.git_ref())?.map(render_readme),
+        render_cached_template(&state.long_html_cache, cache_key, move || {
+            Ok(IndexTemplate {
+                chrome,
+                nav,
+                readme: git::get_readme(&ctx.repo, ctx.git_ref())?.map(render_readme),
+            })
         })
     })
+    .await
 }
 
 fn render_readme(readme: git::ReadmeContent) -> ReadmeDisplay {

@@ -84,6 +84,7 @@ pub fn get_commit_diff_for_path(
         empty_label: summary.empty_label.map(str::to_string),
         size_html: size_html_from_sizes(summary.old_size, summary.new_size),
         gutter_chars: diff_gutter_chars(&lines),
+        use_double_gutter: summary.change == CommitDiffChange::Modified,
         lines,
     }))
 }
@@ -199,7 +200,11 @@ fn render_patch_lines(path: &str, patch: &Patch<'_>) -> Result<Vec<DiffLine>> {
         .zip(highlighted)
         .map(|(line, html)| DiffLine {
             class: line.class,
-            num: line.new_num.clone().unwrap_or_default(),
+            num: line
+                .new_num
+                .clone()
+                .or_else(|| line.old_num.clone())
+                .unwrap_or_default(),
             old_num: line.old_num,
             new_num: line.new_num,
             html,

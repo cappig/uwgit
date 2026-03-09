@@ -1,4 +1,6 @@
 use crate::config::AppConfig;
+use moka::sync::Cache;
+use std::time::Duration;
 
 pub mod errors;
 pub mod util;
@@ -24,15 +26,27 @@ pub struct AppState {
     pub repos_path: std::path::PathBuf,
     pub site_title: String,
     pub owner: String,
+    pub short_html_cache: Cache<String, String>,
+    pub long_html_cache: Cache<String, String>,
 }
 
 impl AppState {
-    pub fn from_config(config: &AppConfig) -> Self {
-        Self {
-            repos_path: config.repos_path.clone().into(),
+    pub fn from_config(config: &AppConfig) -> anyhow::Result<Self> {
+        let repos_path = std::fs::canonicalize(&config.repos_path)?;
+
+        Ok(Self {
+            repos_path,
             site_title: config.site_title.clone(),
             owner: config.owner.clone(),
-        }
+            short_html_cache: Cache::builder()
+                .max_capacity(128)
+                .time_to_live(Duration::from_secs(10))
+                .build(),
+            long_html_cache: Cache::builder()
+                .max_capacity(1024)
+                .time_to_live(Duration::from_secs(60 * 30))
+                .build(),
+        })
     }
 }
 

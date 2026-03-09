@@ -14,7 +14,7 @@ use crate::config::AppConfig;
 #[tokio::main]
 async fn main() {
     let config = AppConfig::load().expect("failed to load config");
-    let app = build_app(&config);
+    let app = build_app(&config).expect("failed to build app");
 
     let addr = format!("{}:{}", config.host, config.port);
     let listener = tokio::net::TcpListener::bind(&addr).await.unwrap();
@@ -23,10 +23,12 @@ async fn main() {
     axum::serve(listener, app).await.unwrap();
 }
 
-fn build_app(config: &AppConfig) -> Router {
+fn build_app(config: &AppConfig) -> anyhow::Result<Router> {
     handlers::errors::set_site_title(config.site_title.clone());
 
-    Router::new()
+    let state = Arc::new(handlers::AppState::from_config(config)?);
+
+    Ok(Router::new()
         .route("/", get(handlers::list_repos))
         .route("/favicon.ico", get(|| async { StatusCode::NO_CONTENT }))
         .route("/{repo}", get(handlers::index))
@@ -39,5 +41,5 @@ fn build_app(config: &AppConfig) -> Router {
         .route("/{repo}/commit/{hash}", get(handlers::commit))
         .nest_service("/static", ServeDir::new("static"))
         .fallback(handlers::errors::not_found)
-        .with_state(Arc::new(handlers::AppState::from_config(config)))
+        .with_state(state))
 }

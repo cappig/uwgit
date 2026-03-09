@@ -571,6 +571,10 @@ tr:hover {
     white-space: nowrap;
 }
 
+.diff-code-viewer {
+    --diff-gutter-width: calc(1ch + 0.6rem);
+}
+
 .diff-code-viewer .line-num-inner {
     display: grid;
     grid-template-columns: repeat(2, var(--diff-gutter-width));
@@ -607,6 +611,23 @@ tr:hover {
 
 .diff-code-viewer .line-num-new {
     padding-left: 0.32rem;
+}
+
+.diff-code-viewer.diff-single-gutter .line-num-inner {
+    display: block;
+    padding: 0 0.75rem;
+}
+
+.diff-code-viewer.diff-single-gutter .line-num::before {
+    content: none;
+}
+
+.diff-code-viewer.diff-single-gutter .line-num-single {
+    display: block;
+    min-height: 1.5em;
+    text-align: right;
+    color: rgb(var(--text-secondary));
+    font-variant-numeric: tabular-nums;
 }
 
 .line-code-inner {
