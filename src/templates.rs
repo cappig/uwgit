@@ -3,6 +3,8 @@ use askama::Template;
 #[derive(Clone)]
 pub struct PageChrome {
     pub site_title: String,
+    pub css_version: &'static str,
+    pub js_version: &'static str,
     pub header_repo: Option<String>,
     pub header_branch: Option<String>,
     pub header_tag: Option<String>,

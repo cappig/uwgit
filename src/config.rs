@@ -1,6 +1,14 @@
 use anyhow::Context;
 use serde::Deserialize;
 
+pub fn css_version() -> &'static str {
+    env!("CSS_VERSION")
+}
+
+pub fn js_version() -> &'static str {
+    env!("JS_VERSION")
+}
+
 #[derive(Clone, Deserialize)]
 pub struct AppConfig {
     pub repos_path: String,

@@ -92,6 +92,8 @@ impl RepoRequestContext {
             repo,
             chrome: PageChrome {
                 site_title: state.site_title.clone(),
+                css_version: crate::config::css_version(),
+                js_version: crate::config::js_version(),
                 header_repo: Some(repo_name.clone()),
                 header_branch: Some(header_refs.branch),
                 header_tag: header_refs.tag,
@@ -127,6 +129,8 @@ impl RepoRequestContext {
 pub fn site_chrome(site_title: String) -> PageChrome {
     PageChrome {
         site_title,
+        css_version: crate::config::css_version(),
+        js_version: crate::config::js_version(),
         header_repo: None,
         header_branch: None,
         header_tag: None,
