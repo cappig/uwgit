@@ -3,7 +3,7 @@
     font-style: normal;
     font-weight: 700;
     font-display: swap;
-    src: url('/static/fonts/unifrakturcook-v24.woff2') format('woff2');
+    src: url('/static/fonts/unifrakturcook-v25.ttf') format('truetype');
 }
 
 @font-face {

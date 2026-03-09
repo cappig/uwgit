@@ -51,7 +51,9 @@ pub struct Pager {
 pub struct DiffLine {
     pub class: &'static str,
     pub num: String,
-    pub text: String,
+    pub old_num: Option<String>,
+    pub new_num: Option<String>,
+    pub html: String,
 }
 
 #[derive(Clone)]
@@ -59,6 +61,7 @@ pub struct FileDiff {
     pub is_binary: bool,
     pub empty_label: Option<String>,
     pub size_html: String,
+    pub gutter_chars: usize,
     pub lines: Vec<DiffLine>,
 }
 

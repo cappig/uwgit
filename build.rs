@@ -21,7 +21,9 @@ fn hash_files(paths: &[&str]) -> String {
         let path = Path::new(path);
         hasher.update(path.to_string_lossy().as_bytes());
         hasher.update([0]);
-        hasher.update(fs::read(path).unwrap_or_else(|err| panic!("failed to read {}: {err}", path.display())));
+        hasher.update(
+            fs::read(path).unwrap_or_else(|err| panic!("failed to read {}: {err}", path.display())),
+        );
         hasher.update([0xff]);
     }
 

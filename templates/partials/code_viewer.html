@@ -4,7 +4,7 @@
         {% for line in lines %}
         <div class="code-row {{ line.class }}">
             <div class="line-num"><span class="line-num-inner">{{ line.num }}</span></div>
-            <div class="line-code"><pre class="line-code-inner">{{ line.text }}</pre></div>
+            <div class="line-code"><pre class="line-code-inner">{{ line.html|safe }}</pre></div>
         </div>
         {% endfor %}
         </div>

@@ -2,6 +2,7 @@ use anyhow::Result;
 use git2::{Delta, Diff, DiffDelta, DiffOptions, Patch, Repository};
 
 use crate::format::{empty_diff_label, size_html_from_sizes};
+use crate::highlight;
 use crate::templates::{DiffLine, FileDiff};
 
 use super::{commit_for_hash, parent_tree};
@@ -70,7 +71,7 @@ pub fn get_commit_diff_for_path(
     let summary = diff_summary(&delta, patch.as_ref())?;
     let mut lines = patch
         .as_ref()
-        .map(render_patch_lines)
+        .map(|patch| render_patch_lines(path, patch))
         .transpose()?
         .unwrap_or_default();
 
@@ -82,6 +83,7 @@ pub fn get_commit_diff_for_path(
         is_binary: summary.is_binary,
         empty_label: summary.empty_label.map(str::to_string),
         size_html: size_html_from_sizes(summary.old_size, summary.new_size),
+        gutter_chars: diff_gutter_chars(&lines),
         lines,
     }))
 }
@@ -143,8 +145,8 @@ fn patch_stats(patch: Option<&Patch<'_>>) -> Result<(bool, usize, usize)> {
     Ok((context + additions + deletions > 0, additions, deletions))
 }
 
-fn render_patch_lines(patch: &Patch<'_>) -> Result<Vec<DiffLine>> {
-    let mut lines = Vec::new();
+fn render_patch_lines(path: &str, patch: &Patch<'_>) -> Result<Vec<DiffLine>> {
+    let mut raw_lines = Vec::new();
 
     for hunk_idx in 0..patch.num_hunks() {
         let (hunk, line_count) = patch.hunk(hunk_idx)?;
@@ -157,25 +159,28 @@ fn render_patch_lines(patch: &Patch<'_>) -> Result<Vec<DiffLine>> {
 
             match line.origin() {
                 '+' | '>' => {
-                    lines.push(DiffLine {
+                    raw_lines.push(RawDiffLine {
                         class: "line-add",
-                        num: new_line.to_string(),
+                        old_num: None,
+                        new_num: Some(new_line.to_string()),
                         text,
                     });
                     new_line += 1;
                 }
                 '-' | '<' => {
-                    lines.push(DiffLine {
+                    raw_lines.push(RawDiffLine {
                         class: "line-remove",
-                        num: old_line.to_string(),
+                        old_num: Some(old_line.to_string()),
+                        new_num: None,
                         text,
                     });
                     old_line += 1;
                 }
                 ' ' | '=' => {
-                    lines.push(DiffLine {
+                    raw_lines.push(RawDiffLine {
                         class: "",
-                        num: new_line.to_string(),
+                        old_num: Some(old_line.to_string()),
+                        new_num: Some(new_line.to_string()),
                         text,
                     });
                     old_line += 1;
@@ -186,7 +191,20 @@ fn render_patch_lines(patch: &Patch<'_>) -> Result<Vec<DiffLine>> {
         }
     }
 
-    Ok(lines)
+    let highlighted =
+        highlight::highlight_lines(path, raw_lines.iter().map(|line| line.text.as_str()), false);
+
+    Ok(raw_lines
+        .into_iter()
+        .zip(highlighted)
+        .map(|(line, html)| DiffLine {
+            class: line.class,
+            num: line.new_num.clone().unwrap_or_default(),
+            old_num: line.old_num,
+            new_num: line.new_num,
+            html,
+        })
+        .collect())
 }
 
 fn diff_line_text(line: &git2::DiffLine<'_>) -> String {
@@ -228,4 +246,21 @@ fn delta_path(delta: &DiffDelta<'_>) -> String {
         .or_else(|| delta.old_file().path())
         .map(|path| path.to_string_lossy().into_owned())
         .unwrap_or_default()
+}
+
+fn diff_gutter_chars(lines: &[DiffLine]) -> usize {
+    lines
+        .iter()
+        .flat_map(|line| [line.old_num.as_deref(), line.new_num.as_deref()])
+        .flatten()
+        .map(str::len)
+        .max()
+        .unwrap_or(1)
+}
+
+struct RawDiffLine {
+    class: &'static str,
+    old_num: Option<String>,
+    new_num: Option<String>,
+    text: String,
 }

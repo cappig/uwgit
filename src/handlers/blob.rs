@@ -7,6 +7,7 @@ use axum::response::{Html, IntoResponse, Response};
 use askama::Template;
 
 use crate::git;
+use crate::highlight;
 use crate::templates::{BlobTemplate, DiffLine};
 
 use super::util::{RepoRequestContext, content_type_for_extension, is_safe_repo_path};
@@ -62,13 +63,23 @@ pub async fn blob(
     let lines = if is_binary {
         Vec::new()
     } else {
-        String::from_utf8_lossy(&content_bytes)
+        let raw_lines: Vec<String> = String::from_utf8_lossy(&content_bytes)
             .split_terminator('\n')
+            .map(str::to_string)
+            .collect();
+        let highlighted =
+            highlight::highlight_lines(&query.path, raw_lines.iter().map(String::as_str), true);
+
+        raw_lines
+            .into_iter()
+            .zip(highlighted)
             .enumerate()
-            .map(|(idx, text)| DiffLine {
+            .map(|(idx, (_text, html))| DiffLine {
                 class: "",
                 num: (idx + 1).to_string(),
-                text: text.to_string(),
+                old_num: None,
+                new_num: None,
+                html,
             })
             .collect()
     };

@@ -2,6 +2,7 @@ mod config;
 mod format;
 mod git;
 mod handlers;
+mod highlight;
 mod templates;
 
 use axum::{Router, http::StatusCode, routing::get};

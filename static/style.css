@@ -526,8 +526,8 @@ tr:hover {
     position: sticky;
     left: 0;
     z-index: 1;
-    border-right: 1px solid rgba(var(--bg-secondary), 0.6);
-    background-color: rgba(var(--bg-secondary), 0.35);
+    background-color: rgb(45, 45, 44);
+    box-shadow: inset -1px 0 0 rgba(var(--bg-secondary), 0.6);
 }
 
 .code-row {
@@ -535,18 +535,19 @@ tr:hover {
 }
 
 .code-row.line-add > .line-num {
-    background-color: rgba(var(--diff-add), 0.06);
-    border-right-color: rgba(var(--diff-add), 0.2);
+    background-color: rgb(45, 45, 44);
+    box-shadow: inset -1px 0 0 rgba(var(--bg-secondary), 0.6);
 }
 
 .code-row.line-remove > .line-num {
-    background-color: rgba(var(--diff-remove), 0.06);
-    border-right-color: rgba(var(--diff-remove), 0.2);
+    background-color: rgb(45, 45, 44);
+    box-shadow: inset -1px 0 0 rgba(var(--bg-secondary), 0.6);
 }
 
 .line-code {
     display: block;
     min-width: 0;
+    background-color: rgb(37, 37, 36);
 }
 
 .code-row.line-add > .line-code {
@@ -570,6 +571,44 @@ tr:hover {
     white-space: nowrap;
 }
 
+.diff-code-viewer .line-num-inner {
+    display: grid;
+    grid-template-columns: repeat(2, var(--diff-gutter-width));
+    gap: 0;
+    align-items: center;
+    padding: 0 0.35rem 0 0.4rem;
+}
+
+.diff-code-viewer .line-num::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: calc(0.4rem + var(--diff-gutter-width));
+    width: 1px;
+    background-color: rgba(var(--bg-secondary), 0.6);
+    pointer-events: none;
+}
+
+.diff-code-viewer .line-num-old,
+.diff-code-viewer .line-num-new {
+    display: block;
+    width: var(--diff-gutter-width);
+    min-height: 1.5em;
+    box-sizing: border-box;
+    text-align: right;
+    color: rgb(var(--text-secondary));
+    font-variant-numeric: tabular-nums;
+}
+
+.diff-code-viewer .line-num-old {
+    padding-right: 0.32rem;
+}
+
+.diff-code-viewer .line-num-new {
+    padding-left: 0.32rem;
+}
+
 .line-code-inner {
     padding: 0 0 0 1rem;
     color: rgb(var(--text-primary));
@@ -591,6 +630,10 @@ tr:hover {
     background-color: rgba(var(--text-primary), 0.04);
 }
 
+.code-row:has(.line-num-inner:hover, .line-code-inner:hover) > .line-num {
+    box-shadow: none;
+}
+
 .code-row.line-add:has(.line-num-inner:hover, .line-code-inner:hover) > .line-num > .line-num-inner,
 .code-row.line-add:has(.line-num-inner:hover, .line-code-inner:hover) > .line-code > .line-code-inner {
     background-color: rgba(var(--diff-add), 0.12);
@@ -607,6 +650,55 @@ tr:hover {
     border: none;
     font-family: inherit;
 }
+
+.code-viewer .tok-comment {
+    color: rgb(106, 153, 85);
+}
+
+.code-viewer .tok-keyword-control {
+    color: rgb(197, 134, 192);
+}
+
+.code-viewer .tok-keyword {
+    color: rgb(86, 156, 214);
+}
+
+.code-viewer .tok-string {
+    color: rgb(206, 145, 120);
+}
+
+.code-viewer .tok-number {
+    color: rgb(181, 206, 168);
+}
+
+.code-viewer .tok-attribute {
+    color: rgb(156, 220, 254);
+}
+
+.code-viewer .tok-decorator {
+    color: rgb(215, 186, 125);
+}
+
+.code-viewer .tok-type {
+    color: rgb(78, 201, 176);
+}
+
+.code-viewer .tok-function {
+    color: rgb(220, 220, 170);
+}
+
+.code-viewer .tok-constant {
+    color: rgb(156, 220, 254);
+}
+
+.code-viewer .tok-macro {
+    color: rgb(197, 134, 192);
+}
+
+.code-viewer .tok-variable {
+    color: rgb(var(--text-primary));
+}
+
 .tree-table td {
     padding: 0.3rem 0.6rem;
 }
