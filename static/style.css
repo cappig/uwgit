@@ -1152,6 +1152,11 @@ tr:hover {
     background-color: rgba(var(--text-primary), 0.08);
 }
 
+.readme-markdown img {
+    max-width: 100%;
+    height: auto;
+}
+
 .repos-title {
     text-align: left;
 }

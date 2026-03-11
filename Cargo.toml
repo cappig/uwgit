@@ -17,6 +17,7 @@ syntect = "5.2"
 time = { version = "0.3", features = ["formatting"] }
 tokio = { version = "1", features = ["macros", "net", "rt-multi-thread"] }
 tower-http = { version = "0.6", features = ["fs"] }
+urlencoding = "2"
 
 [build-dependencies]
 sha2 = "0.10"
