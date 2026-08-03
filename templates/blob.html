@@ -9,7 +9,7 @@
     <div class="breadcrumb">
         {% include "partials/breadcrumb_path.html" %}
     </div>
-    
+
     <div class="breadcrumb-actions">
         <a href="{{ blob_href }}&raw=1">raw</a>
     </div>
@@ -23,6 +23,10 @@
     {% if is_binary %}
     <div class="file-content">
         <p>Binary file, contents not shown</p>
+    </div>
+    {% else if is_too_large %}
+    <div class="file-content">
+        <p>File too large to display, use the raw link above</p>
     </div>
     {% else %}
     {% include "partials/code_viewer.html" %}

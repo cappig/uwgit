@@ -11,6 +11,7 @@ mod commit;
 mod log;
 mod refs;
 mod repo;
+mod robots;
 mod tree;
 
 pub use archive::archive;
@@ -20,7 +21,12 @@ pub use errors::AppError;
 pub use log::log;
 pub use refs::refs;
 pub use repo::{index, list_repos};
+pub use robots::robots;
 pub use tree::tree;
+
+// `git archive` buffers the whole tarball in memory and forks a process, so
+// only a couple may run at once no matter how many requests arrive
+const MAX_CONCURRENT_ARCHIVES: usize = 2;
 
 pub struct AppState {
     pub repos_path: std::path::PathBuf,
@@ -28,6 +34,7 @@ pub struct AppState {
     pub owner: String,
     pub short_html_cache: Cache<String, String>,
     pub long_html_cache: Cache<String, String>,
+    pub archive_slots: tokio::sync::Semaphore,
 }
 
 impl AppState {
@@ -39,13 +46,16 @@ impl AppState {
             site_title: config.site_title.clone(),
             owner: config.owner.clone(),
             short_html_cache: Cache::builder()
-                .max_capacity(128)
+                .weigher(|_key, html: &String| html.len().try_into().unwrap_or(u32::MAX))
+                .max_capacity(8 * 1024 * 1024)
                 .time_to_live(Duration::from_secs(10))
                 .build(),
             long_html_cache: Cache::builder()
-                .max_capacity(1024)
+                .weigher(|_key, html: &String| html.len().try_into().unwrap_or(u32::MAX))
+                .max_capacity(64 * 1024 * 1024)
                 .time_to_live(Duration::from_secs(60 * 30))
                 .build(),
+            archive_slots: tokio::sync::Semaphore::new(MAX_CONCURRENT_ARCHIVES),
         })
     }
 }

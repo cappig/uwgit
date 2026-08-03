@@ -15,7 +15,7 @@ pulldown-cmark = "0.10"
 serde = { version = "1.0", features = ["derive"] }
 syntect = "5.2"
 time = { version = "0.3", features = ["formatting"] }
-tokio = { version = "1", features = ["macros", "net", "rt-multi-thread"] }
+tokio = { version = "1", features = ["macros", "net", "rt-multi-thread", "sync"] }
 tower-http = { version = "0.6", features = ["fs"] }
 urlencoding = "2"
 

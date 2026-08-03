@@ -15,6 +15,12 @@ pub async fn archive(
     Query(query): Query<ArchiveQuery>,
     State(state): State<Arc<AppState>>,
 ) -> Result<Response, AppError> {
+    let _slot = state
+        .archive_slots
+        .acquire()
+        .await
+        .map_err(|err| AppError::Internal(err.into()))?;
+
     let ctx = RepoRequestContext::load(&state, repo_name, query.ref_name)?;
     let archive_root = archive_root_name(&ctx);
     let filename = format!("{archive_root}.tar.gz");

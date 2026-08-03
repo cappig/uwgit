@@ -14,6 +14,8 @@ use super::util::{
 };
 use super::{AppError, AppState, BlobQuery};
 
+const MAX_RENDERED_BLOB_BYTES: usize = 1024 * 1024;
+
 pub async fn blob(
     Path(repo_name): Path<String>,
     Query(query): Query<BlobQuery>,
@@ -62,6 +64,7 @@ pub async fn blob(
         let chrome = ctx.chrome.clone();
         let nav = ctx.nav("blob");
         let is_image = content_type.starts_with("image/");
+        let is_too_large = content_bytes.len() > MAX_RENDERED_BLOB_BYTES;
         let cache_key = format!(
             "blob:{}:{}:{}:{}",
             ctx.repo_name,
@@ -71,7 +74,7 @@ pub async fn blob(
         );
 
         let html = render_cached_template(&state.long_html_cache, cache_key, move || {
-            let lines = if is_binary {
+            let lines = if is_binary || is_too_large {
                 Vec::new()
             } else {
                 let raw_lines: Vec<String> = String::from_utf8_lossy(&content_bytes)
@@ -106,6 +109,7 @@ pub async fn blob(
                 root_href: ctx.append_ref(format!("/{}/tree", ctx.repo_name)),
                 is_binary,
                 is_image,
+                is_too_large,
                 path_components: ctx.path_components(&query.path, false),
                 file_path: query.path,
             })

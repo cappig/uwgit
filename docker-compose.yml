@@ -9,10 +9,12 @@ services:
     user: "${UID:-1000}:${GID:-1000}"
     command: ["/app/uwgit"]
     ports:
-      - "3000:3000"
+      - "127.0.0.1:3000:3000"
     volumes:
       - ${REPOS_PATH}:${REPOS_PATH}:ro
+    networks:
+      - web
 
 networks:
-  default:
-    driver: bridge
+  web:
+    external: true

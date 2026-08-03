@@ -175,6 +175,7 @@ pub struct BlobTemplate {
     pub root_href: String,
     pub is_binary: bool,
     pub is_image: bool,
+    pub is_too_large: bool,
     pub path_components: Vec<PathComponent>,
 }
 

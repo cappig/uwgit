@@ -31,6 +31,7 @@ fn build_app(config: &AppConfig) -> anyhow::Result<Router> {
     Ok(Router::new()
         .route("/", get(handlers::list_repos))
         .route("/favicon.ico", get(|| async { StatusCode::NO_CONTENT }))
+        .route("/robots.txt", get(handlers::robots))
         .route("/{repo}", get(handlers::index))
         .route("/{repo}/archive.tar.gz", get(handlers::archive))
         .route("/{repo}/refs", get(handlers::refs))
